@@ -1,0 +1,15 @@
+logging:
+  level:
+    org.springframework.security: debug
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 367e3d5858dc10db2023
+            client-secret: a7a0364fc3f9f23316d40940342103bf3b4db0ab
+            redirectUri: http://localhost:4200/callback
+            scope:
+              - repo
+              - gist
