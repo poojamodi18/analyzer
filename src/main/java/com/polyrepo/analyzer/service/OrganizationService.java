@@ -26,22 +26,24 @@ public class OrganizationService {
     @Value("${getOrganizationProfileQuery}")
     private String getOrganizationProfileQuery;
 
+    @Value("${graphQLAccessPrefix}")
+    private String graphQLAccessPrefix;
+
     private final Logger logger = LoggerFactory.getLogger(OrganizationService.class);
 
     /**
      * This method with fetch and returns the list of organizations that have the same name as mentioned name
      *
      * @param name  GitHub Organization login name
-     * @param token GitHub personal access token
      * @return List of organization
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getOrganizationList(String name, String token) throws FeignException, JSONException {
+    public Map<String, Object> getOrganizationList(String name) throws FeignException, JSONException {
         String query = String.format(getOrganizationListQuery, name);
         ResponseEntity<String> response;
         logger.info("Getting list of organizations with \" {} \" in name",name);
-        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY);
         return result.toMap();
     }

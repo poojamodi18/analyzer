@@ -24,9 +24,9 @@ public class RepositoryController {
     private final Logger logger = LoggerFactory.getLogger(RepositoryController.class);
 
     @GetMapping("/{orgUserName}/repo")
-    public ResponseEntity<Map<String,Object>> getRepositories(@PathVariable String orgUserName, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Map<String,Object>> getRepositories(@PathVariable String orgUserName) {
         try {
-            return new ResponseEntity<>(repositoryService.getRepositories(orgUserName, token), HttpStatus.OK);
+            return new ResponseEntity<>(repositoryService.getRepositories(orgUserName), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
@@ -37,9 +37,9 @@ public class RepositoryController {
     }
 
     @GetMapping("/{orgUserName}/repo/more")
-    public ResponseEntity<Map<String,Object>> getRepositories(@PathVariable String orgUserName, @RequestHeader("Authorization") String token, @RequestHeader("EndCursor") String endCursor) {
+    public ResponseEntity<Map<String,Object>> getRepositories(@PathVariable String orgUserName, @RequestHeader("EndCursor") String endCursor) {
         try {
-            return new ResponseEntity<>(repositoryService.getRepositoriesByCursor(orgUserName, token, endCursor), HttpStatus.OK);
+            return new ResponseEntity<>(repositoryService.getRepositoriesByCursor(orgUserName, endCursor), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
@@ -50,9 +50,9 @@ public class RepositoryController {
     }
 
     @GetMapping("/{orgUserName}/repo/{repoName}")
-    public ResponseEntity<Map<String,Object>> getRepositoriesByName(@PathVariable String orgUserName, @PathVariable String repoName, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Map<String,Object>> getRepositoriesByName(@PathVariable String orgUserName, @PathVariable String repoName) {
         try {
-            return new ResponseEntity<>(repositoryService.getRepositoriesByName(orgUserName, token, repoName), HttpStatus.OK);
+            return new ResponseEntity<>(repositoryService.getRepositoriesByName(orgUserName, repoName), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);

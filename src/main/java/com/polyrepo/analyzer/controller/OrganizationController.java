@@ -23,9 +23,9 @@ public class OrganizationController {
     private final Logger logger = LoggerFactory.getLogger(OrganizationController.class);
 
     @GetMapping("/{orgName}")
-    public ResponseEntity<Map<String,Object>> getOrganizationsList(@PathVariable String orgName, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<Map<String,Object>> getOrganizationsList(@PathVariable String orgName) {
         try{
-            return new ResponseEntity<>(organizationService.getOrganizationList(orgName,token),HttpStatus.OK);
+            return new ResponseEntity<>(organizationService.getOrganizationList(orgName),HttpStatus.OK);
         }catch (FeignException.Unauthorized e){
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING,StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
