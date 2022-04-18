@@ -26,9 +26,9 @@ public class LabelController {
 
 
     @PostMapping("/{orgUserName}/repo/labels")
-    public ResponseEntity<Object> getLabels(@PathVariable String orgUserName, @RequestHeader("Authorization") String token, @RequestBody RepoNamesList repoNamesList) {
+    public ResponseEntity<Object> getLabels(@PathVariable String orgUserName, @RequestBody RepoNamesList repoNamesList) {
         try {
-            return new ResponseEntity<>(labelService.getLabels(orgUserName, token, repoNamesList), HttpStatus.OK);
+            return new ResponseEntity<>(labelService.getLabels(orgUserName, repoNamesList), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
@@ -40,9 +40,9 @@ public class LabelController {
 
 
     @PostMapping("/{orgUserName}/repo/{label}/openIssues")
-    public ResponseEntity<Map<String,Object>> getOpenIssueNamesByLabel(@PathVariable String orgUserName,@PathVariable String label , @RequestHeader("Authorization") String token, @RequestBody RepoNamesList repoNamesList) {
+    public ResponseEntity<Map<String,Object>> getOpenIssueNamesByLabel(@PathVariable String orgUserName,@PathVariable String label , @RequestBody RepoNamesList repoNamesList) {
         try{
-            return new ResponseEntity<>(labelService.getOpenIssueNamesByLabel(orgUserName,label,token,repoNamesList), HttpStatus.OK);
+            return new ResponseEntity<>(labelService.getOpenIssueNamesByLabel(orgUserName,label,repoNamesList), HttpStatus.OK);
         } catch (FeignException.Unauthorized e){
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
@@ -54,9 +54,9 @@ public class LabelController {
 
 
     @PostMapping("/{orgUserName}/repo/{label}/openIssues/more")
-    public ResponseEntity<Map<String,Object>> getOpenIssueNamesByLabel(@PathVariable String orgUserName,@PathVariable String label, @RequestHeader("EndCursor") String endCursor, @RequestHeader("Authorization") String token, @RequestBody RepoNamesList repoNamesList) {
+    public ResponseEntity<Map<String,Object>> getOpenIssueNamesByLabel(@PathVariable String orgUserName,@PathVariable String label, @RequestHeader("EndCursor") String endCursor, @RequestBody RepoNamesList repoNamesList) {
         try{
-            return new ResponseEntity<>(labelService.getOpenIssueNamesByLabelWithEndCursor(orgUserName,label,endCursor,token,repoNamesList), HttpStatus.OK);
+            return new ResponseEntity<>(labelService.getOpenIssueNamesByLabelWithEndCursor(orgUserName,label,endCursor,repoNamesList), HttpStatus.OK);
         } catch (FeignException.Unauthorized e){
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);

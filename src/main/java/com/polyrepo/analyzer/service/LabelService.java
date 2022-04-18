@@ -36,6 +36,9 @@ public class LabelService {
     @Value("${getOpenIssueCountByLabelWithEndCursor}")
     private String getOpenIssueCountByLabelWithEndCursor;
 
+    @Value("${graphQLAccessPrefix}")
+    private String graphQLAccessPrefix;
+
     @Autowired
     private GraphQLClient client;
 
@@ -45,13 +48,12 @@ public class LabelService {
     /**
      * This method returns list of labels across selected repositories
      * @param orgUserName   GitHub Organization login name
-     * @param token         GitHub personal access token
      * @param repoNamesList List of Repositories selected by user
      * @return List of labels across selected repositories
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object[]> getLabels(String orgUserName, String token, RepoNamesList repoNamesList) throws FeignException, JSONException {
+    public Map<String, Object[]> getLabels(String orgUserName, RepoNamesList repoNamesList) throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         String query = String.format(getLabelsQuery, repoNamesString);
@@ -60,7 +62,7 @@ public class LabelService {
 
         ResponseEntity<String> response;
 
-        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONArray nodes = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY).getJSONArray("nodes");
 
 
@@ -85,7 +87,7 @@ public class LabelService {
 
         logger.info("Repos with labels more than 100 : {}", repoWithCursor.keySet());
         logger.info("Calling getRemainingLabels method to get all remaining labels from above repositories");
-        labelNameSet.addAll(getRemainingLabels(orgUserName, token, repoWithCursor));
+        labelNameSet.addAll(getRemainingLabels(orgUserName, repoWithCursor));
 
         for (String s:
                 labelNameSet) {
@@ -104,13 +106,12 @@ public class LabelService {
      * This method returns list of remaining labels across selected repositories whose labelCount is more than 100
      * It gets the repository name and its respective endCursor from repoWithCursor map
      * @param orgUserName    GitHub Organization login name
-     * @param token          GitHub personal access token
      * @param repoWithCursor Map with key as Repository names and value as EndCursor
      * @return List of remaining labels of repositories with labelCount more than 100
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    private Set<String> getRemainingLabels(String orgUserName, String token, Map<String, String> repoWithCursor) throws FeignException, JSONException {
+    private Set<String> getRemainingLabels(String orgUserName, Map<String, String> repoWithCursor) throws FeignException, JSONException {
 
         Set<String> tempLabelNameSet = new HashSet<>();
         ResponseEntity<String> response;
@@ -118,7 +119,7 @@ public class LabelService {
         for (Map.Entry<String,String> entry :
                 repoWithCursor.entrySet()) {
             String query = String.format(getRemaininglabelsQuery, orgUserName, entry.getKey(), entry.getValue());
-            response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+            response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
             JSONArray nodes = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_ORGANIZATION_KEY).getJSONObject("repository").getJSONObject("labels").getJSONArray("nodes");
             for (int j = 0; j < nodes.length(); j++){
                 tempLabelNameSet.add(nodes.getJSONObject(j).getString("name").toLowerCase());
@@ -134,13 +135,12 @@ public class LabelService {
      * This method returns number of open issues related to specific label across selected repositories
      * @param orgUserName   GitHub Organization login name
      * @param label         GitHub Label
-     * @param token         GitHub personal access token
      * @param repoNamesList List of Repositories selected by user
      * @return Count of open issues across selected repositories related to a specific label
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public int getOpenIssueCountByLabel(String orgUserName, String label, String token, RepoNamesList repoNamesList) throws FeignException, JSONException {
+    public int getOpenIssueCountByLabel(String orgUserName, String label , RepoNamesList repoNamesList) throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         String query = String.format(getOpenIssueCountByLabel, repoNamesString, label);
@@ -149,7 +149,7 @@ public class LabelService {
 
         ResponseEntity<String> response;
 
-        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         return new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY).getInt("issueCount");
     }
 
@@ -158,16 +158,15 @@ public class LabelService {
      * if number of issues exceed 100 then the query with pageInfo is executed
      * @param orgUserName   GitHub Organization login name
      * @param label         GitHub Label
-     * @param token         GitHub personal access token
      * @param repoNamesList List of Repositories selected by user
      * @return List of open issues across selected repositories related to a specific label
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getOpenIssueNamesByLabel(String orgUserName, String label, String token, RepoNamesList repoNamesList) throws FeignException, JSONException {
+    public Map<String, Object> getOpenIssueNamesByLabel(String orgUserName, String label, RepoNamesList repoNamesList) throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
-        int issueCount = getOpenIssueCountByLabel(orgUserName, label, token, repoNamesList);
+        int issueCount = getOpenIssueCountByLabel(orgUserName, label, repoNamesList);
         String query;
         if(issueCount>100){
             query = String.format(getOpenIssueNamesByLabel, repoNamesString, label, " pageInfo{ endCursor, hasNextPage }");
@@ -180,7 +179,7 @@ public class LabelService {
 
         ResponseEntity<String> response;
 
-        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY);
         return result.toMap();
     }
@@ -191,13 +190,12 @@ public class LabelService {
      * @param orgUserName   GitHub Organization login name
      * @param label         GitHub Label
      * @param endCursor     End cursor of previous issue list
-     * @param token         GitHub personal access token
      * @param repoNamesList List of Repositories selected by user
      * @return List of open issues across selected repositories related to a specific label
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getOpenIssueNamesByLabelWithEndCursor(String orgUserName, String label, String endCursor, String token, RepoNamesList repoNamesList) {
+    public Map<String, Object> getOpenIssueNamesByLabelWithEndCursor(String orgUserName, String label, String endCursor, RepoNamesList repoNamesList) {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         String query = String.format(getOpenIssueCountByLabelWithEndCursor, repoNamesString, label, endCursor, " pageInfo{ endCursor, hasNextPage }");
@@ -206,7 +204,7 @@ public class LabelService {
 
         ResponseEntity<String> response;
 
-        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY);
         return result.toMap();
     }

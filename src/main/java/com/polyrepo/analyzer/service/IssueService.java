@@ -30,6 +30,9 @@ public class IssueService {
     @Value("${getClosedP2IssuesTimeQuery}")
     private String getClosedP2IssuesTimeQuery;
 
+    @Value("${graphQLAccessPrefix}")
+    private String graphQLAccessPrefix;
+
     @Autowired
     private GraphQLClient client;
 
@@ -40,14 +43,13 @@ public class IssueService {
      * and the date they were created with the name of repository they belong to
      *
      * @param orgUserName   GitHub Organization login name
-     * @param token         GitHub personal access token
      * @param repoNamesList List of Repositories selected by user
      * @param days          Number of days since before priority-1 issues are open
      * @return List of priority-1 issues open since before x date from selected repositories
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getPriority1IssuesOpenedBeforeXDays(String orgUserName, String token, RepoNamesList repoNamesList, int days) throws FeignException, JSONException {
+    public Map<String, Object> getPriority1IssuesOpenedBeforeXDays(String orgUserName, RepoNamesList repoNamesList, int days) throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         String queryDateString = DateUtil.calculateDateFromDays(days);
@@ -57,7 +59,7 @@ public class IssueService {
 
         ResponseEntity<String> response;
 
-        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY);
         return result.toMap();
     }
@@ -66,16 +68,15 @@ public class IssueService {
      * This method returns the average time taken to resolve priority-1 issues
      *
      * @param orgUserName GitHub Organization login name
-     * @param token       GitHub personal access token
      * @return Average time taken to resolve priority-1 issues
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, String> getAverageResolvingTimeOfP1Issues(String orgUserName, String token) throws FeignException, JSONException {
+    public Map<String, String> getAverageResolvingTimeOfP1Issues(String orgUserName) throws FeignException, JSONException {
         String query = String.format(getClosedP1IssuesTimeQuery, orgUserName);
         logger.info("Getting creation and closing time of priority-1 issues of organization : {}", orgUserName);
 
-        ResponseEntity<String> response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        ResponseEntity<String> response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         return AverageUtil.getAverageTime(response);
     }
 
@@ -83,16 +84,15 @@ public class IssueService {
      * This method returns the average time taken to resolve priority-2 issues
      *
      * @param orgUserName GitHub Organization login name
-     * @param token       GitHub personal access token
      * @return Average time taken to resolve priority-2 issues
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, String> getAverageResolvingTimeOfP2Issues(String orgUserName, String token) throws FeignException, JSONException {
+    public Map<String, String> getAverageResolvingTimeOfP2Issues(String orgUserName) throws FeignException, JSONException {
         String query = String.format(getClosedP2IssuesTimeQuery, orgUserName);
         logger.info("Getting creation and closing time of priority-2 issues of organization : {}", orgUserName);
 
-        ResponseEntity<String> response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        ResponseEntity<String> response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         return AverageUtil.getAverageTime(response);
     }
 }

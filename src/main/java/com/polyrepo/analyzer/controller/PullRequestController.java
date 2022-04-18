@@ -25,9 +25,9 @@ public class PullRequestController {
     private final Logger logger = LoggerFactory.getLogger(PullRequestController.class);
 
     @PostMapping("/{orgUserName}/repo/prLastUpdate/{days}")
-    public ResponseEntity<Map<String, Object>> getPullRequestNotUpdatedByDays(@PathVariable String orgUserName, @PathVariable int days, @RequestHeader("Authorization") String token, @RequestBody RepoNamesList repoNamesList) {
+    public ResponseEntity<Map<String, Object>> getPullRequestNotUpdatedByDays(@PathVariable String orgUserName, @PathVariable int days, @RequestBody RepoNamesList repoNamesList) {
         try {
-            return new ResponseEntity<>(pullRequestService.getPRNotUpdatedByDays(token, orgUserName, repoNamesList, days), HttpStatus.OK);
+            return new ResponseEntity<>(pullRequestService.getPRNotUpdatedByDays(orgUserName, repoNamesList, days), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
@@ -38,9 +38,9 @@ public class PullRequestController {
     }
 
     @PostMapping("/{orgUserName}/repo/prUnMerged/{days}")
-    public ResponseEntity<Map<String, Object>> getPullRequestUnMergedByDays(@PathVariable String orgUserName, @PathVariable int days, @RequestHeader("Authorization") String token, @RequestBody RepoNamesList repoNamesList) {
+    public ResponseEntity<Map<String, Object>> getPullRequestUnMergedByDays(@PathVariable String orgUserName, @PathVariable int days, @RequestBody RepoNamesList repoNamesList) {
         try {
-            return new ResponseEntity<>(pullRequestService.getUnMergedPullRequestByDays(token, orgUserName, repoNamesList, days), HttpStatus.OK);
+            return new ResponseEntity<>(pullRequestService.getUnMergedPullRequestByDays(orgUserName, repoNamesList, days), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);

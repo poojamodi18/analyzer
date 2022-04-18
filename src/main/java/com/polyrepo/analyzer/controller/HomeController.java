@@ -1,6 +1,8 @@
 package com.polyrepo.analyzer.controller;
 
 import com.polyrepo.analyzer.config.TokenStore;
+import com.polyrepo.analyzer.model.User;
+import com.polyrepo.analyzer.service.UserHomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +22,9 @@ public class HomeController {
 
     private final TokenStore tokenStore;
 
+    @Autowired
+    private UserHomeService userHomeService;
+
     public HomeController( TokenStore tokenStore ) {
         this.tokenStore = tokenStore;
     }
@@ -29,7 +34,7 @@ public class HomeController {
             ,@AuthenticationPrincipal( expression = "name" ) String name
             ,@AuthenticationPrincipal( expression = "attributes['login']") String login
             ,@AuthenticationPrincipal( expression = "attributes['avatar_url']") String avatarUrl
-            ,@AuthenticationPrincipal( expression = "attributes['url']") String url
+            ,@AuthenticationPrincipal( expression = "attributes['html_url']") String url
                                            ) {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        String currentPrincipalName = authentication.getName();
@@ -37,6 +42,18 @@ public class HomeController {
 //        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //        System.out.println("\n\n principal"+principal);
 
+        User userObj = userHomeService.getUser(login);
+        if(userObj==null){
+            userObj = new User(username,login,avatarUrl,url);
+            userHomeService.save(userObj);
+        }
+        else{
+            userObj.setName(username);
+            userObj.setLogin(login);
+            userObj.setAvatarUrl(avatarUrl);
+            userObj.setUrl(url);
+            userHomeService.save(userObj);
+        }
         Map<String, String> user = new HashMap<>();
         user.put("name",username);
         user.put("id",name);
