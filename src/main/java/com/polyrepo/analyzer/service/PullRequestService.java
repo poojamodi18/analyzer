@@ -36,6 +36,9 @@ public class PullRequestService {
 
     private final Logger logger = LoggerFactory.getLogger(PullRequestService.class);
 
+    @Autowired
+    private UserHistoryService userHistoryService;
+
     /**
      * This method will return the list of pull requests without activity since x days from the selected
      * repositories by user
@@ -47,7 +50,7 @@ public class PullRequestService {
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getPRNotUpdatedByDays(String orgUserName, RepoNamesList repoNamesList, int days) throws FeignException, JSONException {
+    public Map<String, Object> getPRNotUpdatedByDays(String orgUserName, RepoNamesList repoNamesList, int days,int userId) throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         String queryDateString = DateUtil.calculateDateFromDays(days);
@@ -56,6 +59,8 @@ public class PullRequestService {
 
         String query = String.format(getPullRequestNotUpdatedByDaysQuery, repoNamesString, queryDateString);
         ResponseEntity<String> response;
+
+        userHistoryService.saveActivity(userId,"No Activity Pull Request - "+days+" Days",query,String.valueOf(days),0,0);
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY);
@@ -72,7 +77,7 @@ public class PullRequestService {
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getUnMergedPullRequestByDays(String orgUserName, RepoNamesList repoNamesList, int days) throws FeignException, JSONException {
+    public Map<String, Object> getUnMergedPullRequestByDays(String orgUserName, RepoNamesList repoNamesList, int days,int userId) throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         String queryDateString = DateUtil.calculateDateFromDays(days);
@@ -81,6 +86,8 @@ public class PullRequestService {
 
         String query = String.format(getUnMergedPullRequestByDayQuery, repoNamesString, queryDateString);
         ResponseEntity<String> response;
+
+        userHistoryService.saveActivity(userId,"Unmerged Pull Request - "+days+" Days",query,String.valueOf(days),0,0);
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY);
