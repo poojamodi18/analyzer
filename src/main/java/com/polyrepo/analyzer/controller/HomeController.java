@@ -2,6 +2,7 @@ package com.polyrepo.analyzer.controller;
 
 import com.polyrepo.analyzer.config.TokenStore;
 import com.polyrepo.analyzer.model.User;
+import com.polyrepo.analyzer.service.UserHistoryService;
 import com.polyrepo.analyzer.service.UserHomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,9 @@ public class HomeController {
     @Autowired
     private UserHomeService userHomeService;
 
+    @Autowired
+    private UserHistoryService userHistoryService;
+
     public HomeController( TokenStore tokenStore ) {
         this.tokenStore = tokenStore;
     }
@@ -38,24 +42,12 @@ public class HomeController {
             , @AuthenticationPrincipal( expression = "attributes['avatar_url']") String avatarUrl
             , @AuthenticationPrincipal( expression = "attributes['html_url']") String url
                                            ) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String currentPrincipalName = authentication.getName();
 
-//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        System.out.println("\n\n principal"+principal);
+        return new ResponseEntity<User>(userHomeService.getUserDetails(username,name,login,avatarUrl,url), HttpStatus.OK);
+    }
 
-        User userObj = userHomeService.getUser(login);
-        if(userObj==null){
-            userObj = new User(username,login,avatarUrl,url);
-            userHomeService.save(userObj);
-        }
-        else{
-            userObj.setName(username);
-            userObj.setLogin(login);
-            userObj.setAvatarUrl(avatarUrl);
-            userObj.setUrl(url);
-            userHomeService.save(userObj);
-        }
-        return new ResponseEntity<User>(userObj, HttpStatus.OK);
+    @GetMapping("/recentHistory")
+    public ResponseEntity<Map<String,Object>> getRecentHistory(@RequestHeader("id") String userId){
+        return new ResponseEntity<>(userHistoryService.getUserHistory(Integer.parseInt(userId)), HttpStatus.OK);
     }
 }

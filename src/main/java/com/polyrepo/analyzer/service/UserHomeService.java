@@ -29,4 +29,20 @@ public class UserHomeService{
         }
 
     }
+
+    public User getUserDetails(String username, String name, String login, String avatarUrl, String url) {
+        User userObj = getUser(login);
+        if(userObj==null){
+            userObj = new User(username,login,avatarUrl,url);
+            save(userObj);
+        }
+        else{
+            userObj.setName(username);
+            userObj.setLogin(login);
+            userObj.setAvatarUrl(avatarUrl);
+            userObj.setUrl(url);
+            save(userObj);
+        }
+        return userObj;
+    }
 }
