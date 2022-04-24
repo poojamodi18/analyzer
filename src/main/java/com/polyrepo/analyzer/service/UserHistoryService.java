@@ -31,23 +31,14 @@ public class UserHistoryService {
     }
 
 
-    public Map<String,Object> getUserHistory(Integer userId) {
+    public Map<String,UserHistory> getUserHistory(Integer userId) {
         List<UserHistory> userHistoryList = userHistoryRepository.getByUserId(userId);
         Map<String, UserHistory> userHistoryMap = new HashMap<>();
-        String message = "";
-        for (UserHistory history: userHistoryList) {
-            if(history.getUserId()==userId){
-                message = "Found";
-                userHistoryMap.put(String.valueOf(history.getId()),history);
-            }
-            else{
-                message = "No Recent History available";
-            }
+        int index=0;
+        for (UserHistory userHistory : userHistoryList) {
+            userHistoryMap.put(String.valueOf(index),userHistory);
+            index++;
         }
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("data",userHistoryMap);
-        data.put("message",message);
-        return data;
+        return userHistoryMap;
     }
 }

@@ -31,7 +31,10 @@ public class BranchService {
 
     private final Logger logger = LoggerFactory.getLogger(BranchService.class);
 
-    public Map<String,Object> getDefaultBranch(String orgUserName, RepoNamesList repoNamesList)throws FeignException, JSONException {
+    @Autowired
+    private UserHistoryService userHistoryService;
+
+    public Map<String,Object> getDefaultBranch(String orgUserName, RepoNamesList repoNamesList, int userID)throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         logger.info("Getting default branch ref of selected repository from organization: {}", orgUserName);
@@ -39,6 +42,8 @@ public class BranchService {
 
         String query = String.format(getDefaultBranchQuery, repoNamesString);
         ResponseEntity<String> response;
+
+        userHistoryService.saveActivity(userID,"Default Branch of "+orgUserName,query,"-",0,0);
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY);

@@ -25,9 +25,9 @@ public class BranchController {
     private final Logger logger = LoggerFactory.getLogger(BranchController.class);
 
     @PostMapping("/{orgUserName}/defaultbranch")
-    public ResponseEntity<Map<String,Object>> getDefaultBranch(@PathVariable String orgUserName,@RequestBody RepoNamesList repoNamesList){
+    public ResponseEntity<Map<String,Object>> getDefaultBranch(@PathVariable String orgUserName,@RequestBody RepoNamesList repoNamesList,@RequestHeader("id") String userId){
         try {
-            return new ResponseEntity<>(branchService.getDefaultBranch(orgUserName, repoNamesList), HttpStatus.OK);
+            return new ResponseEntity<>(branchService.getDefaultBranch(orgUserName, repoNamesList,Integer.parseInt(userId)), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);

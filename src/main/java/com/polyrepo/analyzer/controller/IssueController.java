@@ -26,9 +26,9 @@ public class IssueController {
     private final Logger logger = LoggerFactory.getLogger(IssueController.class);
 
     @PostMapping("/{orgUserName}/repo/issuesWithPriority1/openSinceBefore/{days}")
-    public ResponseEntity<Map<String,Object>> getPriority1IssuesOpenedBeforeXDays(@PathVariable String orgUserName, @PathVariable int days, @RequestBody RepoNamesList repoNamesList) {
+    public ResponseEntity<Map<String,Object>> getPriority1IssuesOpenedBeforeXDays(@PathVariable String orgUserName, @PathVariable int days, @RequestBody RepoNamesList repoNamesList,@RequestHeader("id") String userId) {
         try {
-            return new ResponseEntity<>(issueService.getPriority1IssuesOpenedBeforeXDays(orgUserName, repoNamesList, days), HttpStatus.OK);
+            return new ResponseEntity<>(issueService.getPriority1IssuesOpenedBeforeXDays(orgUserName, repoNamesList, days,Integer.parseInt(userId)), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
@@ -39,9 +39,9 @@ public class IssueController {
     }
 
     @GetMapping("/{orgUserName}/averageResolvingTimeOfP1Issues")
-    public ResponseEntity<Map<String,String>> getAverageResolvingTimeOfP1Issues(@PathVariable String orgUserName) {
+    public ResponseEntity<Map<String,String>> getAverageResolvingTimeOfP1Issues(@PathVariable String orgUserName,@RequestHeader("id") String userId) {
         try {
-            return new ResponseEntity<>(issueService.getAverageResolvingTimeOfP1Issues(orgUserName), HttpStatus.OK);
+            return new ResponseEntity<>(issueService.getAverageResolvingTimeOfP1Issues(orgUserName,Integer.parseInt(userId)), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
@@ -52,9 +52,9 @@ public class IssueController {
     }
 
     @GetMapping("/{orgUserName}/averageResolvingTimeOfP2Issues")
-    public ResponseEntity<Map<String,String>> getAverageResolvingTimeOfP2Issues(@PathVariable String orgUserName) {
+    public ResponseEntity<Map<String,String>> getAverageResolvingTimeOfP2Issues(@PathVariable String orgUserName,@RequestHeader("id") String userId) {
         try {
-            return new ResponseEntity<>(issueService.getAverageResolvingTimeOfP2Issues(orgUserName), HttpStatus.OK);
+            return new ResponseEntity<>(issueService.getAverageResolvingTimeOfP2Issues(orgUserName,Integer.parseInt(userId)), HttpStatus.OK);
         } catch (FeignException.Unauthorized e) {
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);

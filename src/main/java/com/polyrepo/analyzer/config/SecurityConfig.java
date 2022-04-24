@@ -53,8 +53,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private void logout(HttpServletRequest request, HttpServletResponse response,
                         Authentication authentication) {
-        // You can process token here
-        System.out.println("Auth token is - " + request.getHeader( "Authorization" ));
     }
 
     void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -79,7 +77,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private void successHandler( HttpServletRequest request,
                                  HttpServletResponse response, Authentication authentication ) throws IOException {
         String token = tokenStore.generateToken( authentication );
-        System.out.println("\n\n SUCCESS HANDLER token :"+token);
         response.getWriter().write(
                 mapper.writeValueAsString( Collections.singletonMap( "accessToken", token ) )
         );

@@ -36,9 +36,9 @@ public class OrganizationController {
     }
 
     @GetMapping("/{orgName}/orgProfile")
-    public ResponseEntity<Map<String,Object>> getOrganizationProfile(@PathVariable String orgName, @RequestHeader("Authorization") String token){
+    public ResponseEntity<Map<String,Object>> getOrganizationProfile(@PathVariable String orgName){
         try{
-            return new ResponseEntity<>(organizationService.getOrganizationProfile(orgName,token),HttpStatus.OK);
+            return new ResponseEntity<>(organizationService.getOrganizationProfile(orgName),HttpStatus.OK);
         }catch (FeignException.Unauthorized e){
             logger.error(e.getMessage());
             return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING,StringConstants.JSON_UNAUTHORIZED_VALUE),HttpStatus.UNAUTHORIZED);

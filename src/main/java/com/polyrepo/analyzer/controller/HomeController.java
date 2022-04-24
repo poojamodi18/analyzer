@@ -2,6 +2,7 @@ package com.polyrepo.analyzer.controller;
 
 import com.polyrepo.analyzer.config.TokenStore;
 import com.polyrepo.analyzer.model.User;
+import com.polyrepo.analyzer.model.UserHistory;
 import com.polyrepo.analyzer.service.UserHistoryService;
 import com.polyrepo.analyzer.service.UserHomeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class HomeController {
     }
 
     @GetMapping("/recentHistory")
-    public ResponseEntity<Map<String,Object>> getRecentHistory(@RequestHeader("id") String userId){
+    public ResponseEntity<Map<String, UserHistory>> getRecentHistory(@RequestHeader("id") String userId){
         return new ResponseEntity<>(userHistoryService.getUserHistory(Integer.parseInt(userId)), HttpStatus.OK);
     }
 }

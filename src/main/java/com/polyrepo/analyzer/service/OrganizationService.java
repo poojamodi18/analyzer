@@ -52,16 +52,15 @@ public class OrganizationService {
      * This method will fetch the name, url and avatar image url of the specified organization
      *
      * @param orgUserName GitHub Organization login name
-     * @param token       GitHub personal access token
      * @return Profile details of specified organization
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getOrganizationProfile(String orgUserName, String token) throws FeignException, JSONException {
+    public Map<String, Object> getOrganizationProfile(String orgUserName) throws FeignException, JSONException {
         String query = String.format(getOrganizationProfileQuery, orgUserName);
         ResponseEntity<String> response;
         logger.info("Getting Organization profile of : {}" , orgUserName);
-        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + token, query);
+        response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY);
         return result.toMap();
     }

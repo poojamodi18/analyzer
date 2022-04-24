@@ -14,8 +14,6 @@ public class TokenStore {
     public String generateToken( Authentication authentication ) {
         String token = UUID.randomUUID().toString();
         cache.put( token, authentication );
-        System.out.println("\n\n TOKEN : "+token);
-        System.out.println("Authentication : "+authentication);
         return token;
     }
 

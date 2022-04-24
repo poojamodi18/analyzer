@@ -60,7 +60,7 @@ public class PullRequestService {
         String query = String.format(getPullRequestNotUpdatedByDaysQuery, repoNamesString, queryDateString);
         ResponseEntity<String> response;
 
-        userHistoryService.saveActivity(userId,"No Activity Pull Request - "+days+" Days",query,String.valueOf(days),0,0);
+        userHistoryService.saveActivity(userId,"No Activity Pull Request Since: "+queryDateString,query,String.valueOf(days),0,0);
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY);
@@ -87,7 +87,7 @@ public class PullRequestService {
         String query = String.format(getUnMergedPullRequestByDayQuery, repoNamesString, queryDateString);
         ResponseEntity<String> response;
 
-        userHistoryService.saveActivity(userId,"Unmerged Pull Request - "+days+" Days",query,String.valueOf(days),0,0);
+        userHistoryService.saveActivity(userId,"Unmerged Pull Request Since: "+queryDateString,query,String.valueOf(days),0,0);
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY);

@@ -38,6 +38,9 @@ public class IssueService {
 
     private final Logger logger = LoggerFactory.getLogger(IssueService.class);
 
+    @Autowired
+    private UserHistoryService userHistoryService;
+
     /**
      * This method returns the list of priority-1 issues of the selected repositories by user
      * and the date they were created with the name of repository they belong to
@@ -49,7 +52,7 @@ public class IssueService {
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, Object> getPriority1IssuesOpenedBeforeXDays(String orgUserName, RepoNamesList repoNamesList, int days) throws FeignException, JSONException {
+    public Map<String, Object> getPriority1IssuesOpenedBeforeXDays(String orgUserName, RepoNamesList repoNamesList, int days, int userId) throws FeignException, JSONException {
         StringBuilder repoNamesString = QueryUtil.getRepositoryListForQuery(repoNamesList,orgUserName);
 
         String queryDateString = DateUtil.calculateDateFromDays(days);
@@ -58,6 +61,8 @@ public class IssueService {
         logger.info("List of selected repositories : {}", repoNamesList);
 
         ResponseEntity<String> response;
+
+        userHistoryService.saveActivity(userId,"Priority Issue Open Since: "+queryDateString,query,"-",0,0);
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY);
@@ -72,9 +77,11 @@ public class IssueService {
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, String> getAverageResolvingTimeOfP1Issues(String orgUserName) throws FeignException, JSONException {
+    public Map<String, String> getAverageResolvingTimeOfP1Issues(String orgUserName, int userId) throws FeignException, JSONException {
         String query = String.format(getClosedP1IssuesTimeQuery, orgUserName);
         logger.info("Getting creation and closing time of priority-1 issues of organization : {}", orgUserName);
+
+        userHistoryService.saveActivity(userId,"Average Resolving Time of Priority-1 Issues of "+orgUserName,query,"-",0,0);
 
         ResponseEntity<String> response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         return AverageUtil.getAverageTime(response);
@@ -88,9 +95,11 @@ public class IssueService {
      * @throws FeignException FeignException.Unauthorized if token is invalid, FeignException.BadRequest if FeignClient returns 400 Bad Request
      * @throws JSONException if JSON parsing is invalid
      */
-    public Map<String, String> getAverageResolvingTimeOfP2Issues(String orgUserName) throws FeignException, JSONException {
+    public Map<String, String> getAverageResolvingTimeOfP2Issues(String orgUserName, int userId) throws FeignException, JSONException {
         String query = String.format(getClosedP2IssuesTimeQuery, orgUserName);
         logger.info("Getting creation and closing time of priority-2 issues of organization : {}", orgUserName);
+
+        userHistoryService.saveActivity(userId,"Average Resolving Time of Priority-2 Issues of "+orgUserName,query,"-",0,0);
 
         ResponseEntity<String> response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         return AverageUtil.getAverageTime(response);
