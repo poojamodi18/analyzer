@@ -62,7 +62,7 @@ public class IssueService {
 
         ResponseEntity<String> response;
 
-        userHistoryService.saveActivity(userId,"Priority Issue Open Since: "+queryDateString,query,"-",0,0);
+        userHistoryService.saveActivity(userId,"Priority Issue Open Since: "+queryDateString+" of "+orgUserName,query,"-",0,0);
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         JSONObject result = new JSONObject(Objects.requireNonNull(response.getBody())).getJSONObject(StringConstants.JSON_DATA_KEY).getJSONObject(StringConstants.JSON_SEARCH_KEY);
