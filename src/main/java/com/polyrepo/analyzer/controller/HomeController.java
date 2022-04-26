@@ -1,10 +1,15 @@
 package com.polyrepo.analyzer.controller;
 
 import com.polyrepo.analyzer.config.TokenStore;
+import com.polyrepo.analyzer.constant.StringConstants;
 import com.polyrepo.analyzer.model.User;
 import com.polyrepo.analyzer.model.UserHistory;
 import com.polyrepo.analyzer.service.UserHistoryService;
 import com.polyrepo.analyzer.service.UserHomeService;
+import feign.FeignException;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,23 +34,13 @@ public class HomeController {
 
     private final TokenStore tokenStore;
 
-    @Value("${getCommonTrendQuery}")
-    private String getCommonTrendQuery;
-
-    @Value("${getCommonTrend}")
-    private String getCommonTrend;
-
-    @Value("${getTodayCommonTrend}")
-    private String getTodayCommonTrend;
-
-    @Value("${graphQLAccessPrefix}")
-    private String graphQLAccessPrefix;
-
     @Autowired
     private UserHomeService userHomeService;
 
     @Autowired
     private UserHistoryService userHistoryService;
+
+    private final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     public HomeController( TokenStore tokenStore ) {
         this.tokenStore = tokenStore;
@@ -69,45 +64,14 @@ public class HomeController {
 
     @GetMapping("/commonTrend")
     public ResponseEntity<Map<String,Object>> getCommonTrend(){
-        Date date = new Date();
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        int month = localDate.getMonthValue();
-
-        DateTimeFormatter monthYearFormatter = DateTimeFormatter.ofPattern("MMM");
-        DateTimeFormatter numberMonthYearFormatter = DateTimeFormatter.ofPattern("MM");
-        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
-
-        YearMonth thisMonth    = YearMonth.now();
-
-        List<String> queryday = new ArrayList<>();
-
-        System.out.println("\n\n\nLOOP");
-
-        for (int i = 0; i <month; i++) {
-            YearMonth lastMonth    = thisMonth.minusMonths(i);
-            queryday.add(lastMonth.format(monthYearFormatter));
-            queryday.add(lastMonth.format(yearFormatter)+"-"+ lastMonth.format(numberMonthYearFormatter)+"-01");
+        try {
+            return new ResponseEntity<>(userHomeService.getTrendData(), HttpStatus.OK);
+        } catch (FeignException.Unauthorized e) {
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_UNAUTHORIZED_VALUE), HttpStatus.UNAUTHORIZED);
+        } catch (FeignException.BadRequest | JSONException e) {
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(Collections.singletonMap(StringConstants.JSON_MESSAGE_KEY_STRING, StringConstants.JSON_BAD_REQUEST_VALUE), HttpStatus.BAD_REQUEST);
         }
-
-        System.out.println(queryday);
-
-
-        int index = 0;
-
-        String query = String.format(getCommonTrend, queryday.get(0), queryday.get(1), queryday.get(0), queryday.get(1),
-                queryday.get(0), queryday.get(1), queryday.get(0), queryday.get(1), queryday.get(0), queryday.get(1));
-
-        String finalQuery = "";
-        for (int i = 0; i <month; i++) {
-                // 0 -> 0 1
-                // 1 -> 2 3
-                // 2 -> 4 5
-                // 3 -> 6 7
-        }
-
-
-        System.out.println(query);
-
-        return null;
     }
 }
