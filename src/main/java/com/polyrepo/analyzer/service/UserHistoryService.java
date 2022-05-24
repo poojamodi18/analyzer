@@ -6,7 +6,6 @@ import com.polyrepo.analyzer.dao.UserHistoryRepository;
 import com.polyrepo.analyzer.model.UserHistory;
 import com.polyrepo.analyzer.util.AverageUtil;
 import feign.FeignException;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserHistoryService {

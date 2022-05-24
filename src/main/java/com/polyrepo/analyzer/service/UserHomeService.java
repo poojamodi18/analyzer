@@ -48,15 +48,15 @@ public class UserHomeService{
 
     public User getUser (String login){
         List<User> users = userRepository.findByLogin(login);
-        if(users.size()>0){
-            return userRepository.findByLogin(login).get(0);
-        }else{
+        if(users.isEmpty()){
             return null;
+        }else{
+            return userRepository.findByLogin(login).get(0);
         }
 
     }
 
-    public User getUserDetails(String username, String name, String login, String avatarUrl, String url) {
+    public User getUserDetails(String username, String login, String avatarUrl, String url) {
         User userObj = getUser(login);
         if(userObj==null){
             userObj = new User(username,login,avatarUrl,url);
@@ -84,26 +84,21 @@ public class UserHomeService{
         YearMonth thisMonth    = YearMonth.now();
 
         List<String> queryday = new ArrayList<>();
-//        System.out.println("\n\n\nLOOP");
         for (int i = 0; i <month; i++) {
             YearMonth lastMonth = thisMonth.minusMonths(i);
             queryday.add(lastMonth.format(monthYearFormatter));
             queryday.add(lastMonth.format(yearFormatter)+"-"+ lastMonth.format(numberMonthYearFormatter)+"-01");
         }
-//        System.out.println(queryday);
-        String finalQuery = "";
+        StringBuilder finalQuery = new StringBuilder();
         int index = 0;
         for (int i = 0; i <month; i++) {
             String query = String.format(getCommonTrend, queryday.get(index), queryday.get(index+1),
                     queryday.get(index), queryday.get(index+1), queryday.get(index), queryday.get(index+1),
                     queryday.get(index), queryday.get(index+1), queryday.get(index), queryday.get(index+1));
             index +=2;
-            finalQuery += query;
+            finalQuery.append(query);
         }
-//        System.out.println(finalQuery);
-//        System.out.println(getTodayCommonTrend);
         String lastQuery = String.format(getCommonTrendQuery,finalQuery+getTodayCommonTrend);
-//        System.out.println(lastQuery);
         ResponseEntity<String> response;
 
         response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, lastQuery);

@@ -42,7 +42,7 @@ public class HomeController {
             , @AuthenticationPrincipal( expression = "attributes['html_url']") String url
                                            ) {
 
-        return new ResponseEntity<>(userHomeService.getUserDetails(username,name,login,avatarUrl,url), HttpStatus.OK);
+        return new ResponseEntity<>(userHomeService.getUserDetails(username,login,avatarUrl,url), HttpStatus.OK);
     }
 
     @GetMapping("/recentHistory")

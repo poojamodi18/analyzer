@@ -46,10 +46,9 @@ public class RepositoryService {
      * Returns the total number of repositories the organization has
      *
      * @param orgUserName GitHub Organization login name
-     * @param token       GitHub personal access token
      * @return Total count of repositories of specified organization
      */
-    private int getRepositoryCount(String orgUserName, String token) {
+    private int getRepositoryCount(String orgUserName) {
         String query = String.format(getRepositoryCountQuery, orgUserName);
         ResponseEntity<String> response = client.getQuery(StringConstants.AUTH_HEADER_PREFIX + graphQLAccessPrefix, query);
         return new JSONObject(response.getBody()).getJSONObject("data").getJSONObject("organization").getJSONObject("repositories").getInt("totalCount");
@@ -68,7 +67,7 @@ public class RepositoryService {
     public Map<String, Object> getRepositories(String orgUserName) throws FeignException, JSONException {
         ResponseEntity<String> response;
 
-        int count = getRepositoryCount(orgUserName, graphQLAccessPrefix);
+        int count = getRepositoryCount(orgUserName);
         logger.info("Total count of repositories: {}" , count);
         if (count <= 100) {
             logger.info("Getting all the repositories");
