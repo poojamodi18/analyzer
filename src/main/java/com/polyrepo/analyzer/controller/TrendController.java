@@ -1,8 +1,6 @@
 package com.polyrepo.analyzer.controller;
 
 import com.polyrepo.analyzer.constant.StringConstants;
-import com.polyrepo.analyzer.model.RepoNamesList;
-import com.polyrepo.analyzer.model.Trend;
 import com.polyrepo.analyzer.service.TrendService;
 import feign.FeignException;
 import org.json.JSONException;
@@ -38,7 +36,8 @@ public class TrendController {
         }
     }
 
-    /*@PostMapping("/{orgUserName}/repo/idlePR/{startDate}")
+    /**
+     * @PostMapping("/{orgUserName}/repo/idlePR/{startDate}")
     public ResponseEntity<Map<String, Object>> getPullRequestNotUpdatedByDays(@PathVariable String orgUserName, @PathVariable String startDate, @RequestBody RepoNamesList repoNamesList, @RequestHeader("id") String userId) {
         try {
             return new ResponseEntity<>(trendService.getTrendData(orgUserName, repoNamesList, startDate, Integer.parseInt(userId)), HttpStatus.OK);
